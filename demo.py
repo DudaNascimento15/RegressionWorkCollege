@@ -85,3 +85,19 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# 3)
+# O dataset que não é muito apropriado pra regressão linear é o dataset 2.
+# isso pq olhando o gráfico ele não segue uma reta direito,
+# os pontos fazem mais uma curva do q uma linha.
+# então mesmo q saia um valor de correlacao e uma reta, isso pode enganar,
+# porque a relação ali não é linear de vdd.
+
+# 4)
+# no dataset 4 tem um ponto q está bem fora dos outros
+# antes de ajustar a regressao, tinha q ver esse ponto melhor primeiro,
+# pra saber se não é erro de medida, erro de digitação ou algum valor
+# muito fora do padrão.
+# isso pq um ponto assim pode puxar a reta e estragar o resultado,
+# deixando a regressao meio errada ou enganosa.
