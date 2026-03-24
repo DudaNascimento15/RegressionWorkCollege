@@ -7,7 +7,7 @@ y = []
 
 def lerArquivo():
     global x, y, dataset
-    with open("datasetFase1.txt", "r") as f:
+    with open("fase1\datasetFase1.txt", "r") as f:
         for line in f:
             if line.startswith(f'x'):
                 x = line.strip()
