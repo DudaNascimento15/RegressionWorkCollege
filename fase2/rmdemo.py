@@ -5,6 +5,7 @@ import numpy as np
 import requests
 from sklearn.linear_model import LinearRegression
 
+
 def baixar_arquivo_git(caminho_arquivo):
     url = f'https://raw.githubusercontent.com/DudaNascimento15/RegressionWorkCollege/main/fase2/{caminho_arquivo}'
 
@@ -17,7 +18,6 @@ def baixar_arquivo_git(caminho_arquivo):
     else:
         print(f"Falhou baixar o arquivo {url}. Status code: {response.status_code}")
         return
-
 
 def ler_arquivos_dat(caminho_arquivo):
     mat = scipy.loadmat(caminho_arquivo)
