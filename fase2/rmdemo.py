@@ -96,10 +96,63 @@ def gerarMatrizes(df):
     return matriz_x, variaveis_dependentes
 
 
+def correlacaoSimples(x, y):
+    n = len(x)
+
+    if len(x) != len(y):
+        return 0
+
+    media_x = sum(x) / n
+    media_y = sum(y) / n
+    numerador = sum((x[i] - media_x) * (y[i] - media_y) for i in range(n))
+    denominador_x = sum((x[i] - media_x) ** 2 for i in range(n))
+    denominador_y = sum((y[i] - media_y) ** 2 for i in range(n))
+    denominador_total = (denominador_x * denominador_y) ** 0.5
+    r = numerador / denominador_total
+
+    return round(r, 5)
+
+
+def regressaoSimples(x, y):
+    n = len(x)
+
+    if len(x) != len(y):
+        return 0
+    
+    media_x = sum(x) / n
+    media_y = sum(y) / n
+    numerador_beta1 = sum((x[i] - media_x) * (y[i] - media_y) for i in range(n))
+    denominador_beta1 = sum((x[i] - media_x) ** 2 for i in range(n))
+    beta1 = numerador_beta1 / denominador_beta1
+    beta0 = media_y - beta1 * media_x
+
+    return round(beta0, 5), round(beta1, 5)
+
+
+def desenharGraficoSimples(x, y):
+    plt.figure(figsize=(4,4))
+    plt.scatter(x, y)
+    plt.grid(True)
+    valor_correlacao = correlacaoSimples(x, y)
+    b_0, b_1 = regressaoSimples(x, y)
+    linha_regressao = b_0 + b_1 * x
+    plt.plot(x, linha_regressao, color='red')
+    plt.title(f'Correlação: {valor_correlacao}. Regressão: {b_0}, {b_1}')
+
+
+def desenharParteD(df):
+    tamanho = df["tamanho"]
+    quartos = df["numero"]
+    preco = df["preco"]
+
+    desenharGraficoSimples(tamanho, preco)
+    desenharGraficoSimples(quartos, preco)
+
+
 def calcular_correlacao(df):
     correlacao_tamanho_preco = df["tamanho"].corr(df["preco"])
     correlacao_quartos_preco = df["numero"].corr(df["preco"])
-    
+
     return correlacao_tamanho_preco, correlacao_quartos_preco
 
 
@@ -129,7 +182,7 @@ def gerar_grafico(df):
     ax.set_ylabel("Número de quartos")
     ax.set_zlabel("Preço")
     ax.set_title("Regressão Linear Múltipla - Preço de Casas")
-    
+
     text_str = (f'Correlação (Tamanho x Preço): {correlacao_tamanho_preco:.4f}\n'
                 f'Correlação (Quartos x Preço): {correlacao_quartos_preco:.4f}')
     plt.figtext(0.15, 0.8, text_str, fontsize=12, bbox=dict(facecolor='white', alpha=0.8))
@@ -236,6 +289,7 @@ def main():
         return
 
     analise_estatistica(df)
+    desenharParteD(df)
     gerar_grafico(df)
     theta, modelo = comparar_resultados(df)
     explicar_resultado(theta)
