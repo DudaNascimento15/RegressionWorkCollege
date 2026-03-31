@@ -5,7 +5,7 @@ dataset = 0
 x = []
 y = []
 
-def lerArquivo():
+def ler_arquivo():
     global x, y, dataset
     with open("fase1\datasetFase1.txt", "r") as f:
         for line in f:
@@ -80,7 +80,7 @@ def regressao(x, y):
     return round(beta0, 5), round(beta1, 5)
 
 def main():
-    lerArquivo()
+    ler_arquivo()
     desenhar()
 
 if __name__ == "__main__":

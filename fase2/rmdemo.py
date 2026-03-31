@@ -65,7 +65,7 @@ def analise_estatistica(df):
     print(f"Casa mais cara custa: {casa_mais_cara['preco']}")
 
 
-def gerarMatrizes(df):
+def gerar_matrizes(df):
     X = df[["tamanho", "numero"]].values
     y = df["preco"].values.reshape(-1, 1)
 
@@ -80,8 +80,8 @@ def regressao_manual(df):
     Regressão linear múltipla usando a equação normal:
     theta = (X^T X)^-1 X^T y
     """
-    
-    X_b, y = gerarMatrizes(df)
+
+    X_b, y = gerar_matrizes(df)
 
     theta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
     return theta
@@ -93,7 +93,7 @@ def prever_manual(theta, tamanho, numero_quartos):
     return float(previsao[0][0])
 
 
-def correlacaoSimples(x, y):
+def correlacao_simples(x, y):
     n = len(x)
 
     if len(x) != len(y):
@@ -110,7 +110,7 @@ def correlacaoSimples(x, y):
     return round(r, 5)
 
 
-def regressaoSimples(x, y):
+def regressao_simples(x, y):
     n = len(x)
 
     if len(x) != len(y):
@@ -126,34 +126,34 @@ def regressaoSimples(x, y):
     return round(beta0, 5), round(beta1, 5)
 
 
-def desenharGraficoSimples(x, y, titulo):
+def desenhar_grafico_simples(x, y, titulo):
     plt.figure(figsize=(4,4))
     plt.scatter(x, y)
     plt.grid(True)
-    valor_correlacao = correlacaoSimples(x, y)
-    b_0, b_1 = regressaoSimples(x, y)
+    valor_correlacao = correlacao_simples(x, y)
+    b_0, b_1 = regressao_simples(x, y)
     linha_regressao = b_0 + b_1 * x
     plt.plot(x, linha_regressao, color='red')
     plt.title(f'{titulo} - Correlação: {valor_correlacao}. Regressão: {b_0}, {b_1}')
 
 
-def desenharParteD(df):
+def desenhar_parte_d(df):
     tamanho = df["tamanho"]
     quartos = df["numero"]
     preco = df["preco"]
 
     print("\n")
-    desenharGraficoSimples(tamanho, preco, "Gráfico Tamanho x Preço")
+    desenhar_grafico_simples(tamanho, preco, "Gráfico Tamanho x Preço")
     print("\n")    
-    desenharGraficoSimples(quartos, preco, "Gráfico Quartos x Preço")
+    desenhar_grafico_simples(quartos, preco, "Gráfico Quartos x Preço")
     print("\n")  
 
 
-def desenharGrafico3d(df):
+def desenhar_grafico_3d(df):
     #modelo = regressao_sklearn(df)
     theta = regressao_manual(df)
-    correlacao_tamanho_preco = correlacaoSimples(df["tamanho"], df["preco"])
-    correlacao_quartos_preco = correlacaoSimples(df["numero"], df["preco"])
+    correlacao_tamanho_preco = correlacao_simples(df["tamanho"], df["preco"])
+    correlacao_quartos_preco = correlacao_simples(df["numero"], df["preco"])
 
     theta0 = theta [0][0] #modelo.intercept_
     theta1, theta2 = theta[1][0], theta[2][0] #modelo.coef_
@@ -285,8 +285,8 @@ def main():
         return
 
     analise_estatistica(df)
-    desenharParteD(df)
-    desenharGrafico3d(df)
+    desenhar_parte_d(df)
+    desenhar_grafico_3d(df)
     theta, modelo = comparar_resultados(df)
     explicar_resultado(theta)
 
