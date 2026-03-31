@@ -48,6 +48,20 @@ def main():
 
     grafico_dispersao(df[0].values, df[1].values)
 
+def calcular_residuo(y_observado, y_previsto):
+    return pow(y_observado - y_previsto, 2)
+
+def calcular_eqm(y_observado, y_previsto):
+    somatorio = 0
+    n = y_observado.size()
+
+    for i in range(n):
+        somatorio += calcular_residuo(y_observado[i], y_previsto[i])
+
+    resultado = (1/n) * somatorio
+
+    return resultado
+
 
 if __name__ == "__main__":
     main()
