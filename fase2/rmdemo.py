@@ -228,8 +228,9 @@ def comparar_resultados(df):
 
     print(f"Intercepto sklearn: {modelo.intercept_}")
     print(f"Coeficientes sklearn: {modelo.coef_}")
-
-    preco_1650_3_sklearn = modelo.predict([[1650, 3]])[0]
+    
+    entrada_previsao = pd.DataFrame([[1650, 3]], columns=["tamanho", "numero"])
+    preco_1650_3_sklearn = modelo.predict(entrada_previsao)[0]
     print(
         f"\nPreço previsto para casa de 1650 pés² e 3 quartos (sklearn): {preco_1650_3_sklearn:.0f}"
     )
