@@ -65,16 +65,23 @@ def analise_estatistica(df):
     print(f"Casa mais cara custa: {casa_mais_cara['preco']}")
 
 
-def regressao_manual(df):
-    """
-    Regressão linear múltipla usando a equação normal:
-    theta = (X^T X)^-1 X^T y
-    """
+def gerarMatrizes(df):
     X = df[["tamanho", "numero"]].values
     y = df["preco"].values.reshape(-1, 1)
 
     # adiciona coluna de 1 para o intercepto
     X_b = np.c_[np.ones((X.shape[0], 1)), X]
+
+    return X_b, y
+
+
+def regressao_manual(df):
+    """
+    Regressão linear múltipla usando a equação normal:
+    theta = (X^T X)^-1 X^T y
+    """
+    
+    X_b, y = gerarMatrizes(df)
 
     theta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
     return theta
@@ -84,16 +91,6 @@ def prever_manual(theta, tamanho, numero_quartos):
     x_novo = np.array([[1, tamanho, numero_quartos]])
     previsao = x_novo @ theta
     return float(previsao[0][0])
-
-
-def gerarMatrizes(df):
-    matriz = df[["tamanho", "numero"]].to_numpy()
-    matriz_uns = np.ones((matriz.shape[0], 1))
-    matriz_x = np.hstack((matriz_uns, matriz))
-
-    variaveis_dependentes = df["preco"].to_numpy()
-
-    return matriz_x, variaveis_dependentes
 
 
 def correlacaoSimples(x, y):
