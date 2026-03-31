@@ -129,7 +129,7 @@ def regressaoSimples(x, y):
     return round(beta0, 5), round(beta1, 5)
 
 
-def desenharGraficoSimples(x, y):
+def desenharGraficoSimples(x, y, titulo):
     plt.figure(figsize=(4,4))
     plt.scatter(x, y)
     plt.grid(True)
@@ -137,7 +137,7 @@ def desenharGraficoSimples(x, y):
     b_0, b_1 = regressaoSimples(x, y)
     linha_regressao = b_0 + b_1 * x
     plt.plot(x, linha_regressao, color='red')
-    plt.title(f'Correlação: {valor_correlacao}. Regressão: {b_0}, {b_1}')
+    plt.title(f'{titulo} - Correlação: {valor_correlacao}. Regressão: {b_0}, {b_1}')
 
 
 def desenharParteD(df):
@@ -145,21 +145,18 @@ def desenharParteD(df):
     quartos = df["numero"]
     preco = df["preco"]
 
-    desenharGraficoSimples(tamanho, preco)
-    desenharGraficoSimples(quartos, preco)
+    print("\n")
+    desenharGraficoSimples(tamanho, preco, "Gráfico Tamanho x Preço")
+    print("\n")    
+    desenharGraficoSimples(quartos, preco, "Gráfico Quartos x Preço")
+    print("\n")  
 
 
-def calcular_correlacao(df):
-    correlacao_tamanho_preco = df["tamanho"].corr(df["preco"])
-    correlacao_quartos_preco = df["numero"].corr(df["preco"])
-
-    return correlacao_tamanho_preco, correlacao_quartos_preco
-
-
-def gerar_grafico(df):
+def desenharGrafico3d(df):
     #modelo = regressao_sklearn(df)
     theta = regressao_manual(df)
-    correlacao_tamanho_preco, correlacao_quartos_preco = calcular_correlacao(df)
+    correlacao_tamanho_preco = correlacaoSimples(df["tamanho"], df["preco"])
+    correlacao_quartos_preco = correlacaoSimples(df["numero"], df["preco"])
 
     theta0 = theta [0][0] #modelo.intercept_
     theta1, theta2 = theta[1][0], theta[2][0] #modelo.coef_
@@ -189,6 +186,7 @@ def gerar_grafico(df):
 
     plt.tight_layout()
     plt.show()
+    print("\n")  
 
 
 def regressao_sklearn(df):
@@ -281,7 +279,7 @@ def explicar_resultado(theta):
 
 def main():
     arquivo_usuario = input(
-        "Digite o nome do arquivo que você subiu (ex: data.csv ou dados.mat): "
+        "Digite o nome do arquivo que você subiu (ex: data.csv ou data.mat): "
     ).strip()
 
     df = carregar_arquivo(arquivo_usuario)
@@ -290,7 +288,7 @@ def main():
 
     analise_estatistica(df)
     desenharParteD(df)
-    gerar_grafico(df)
+    desenharGrafico3d(df)
     theta, modelo = comparar_resultados(df)
     explicar_resultado(theta)
 
