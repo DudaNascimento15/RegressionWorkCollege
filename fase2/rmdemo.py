@@ -68,7 +68,7 @@ def analise_estatistica(df):
 def regressao_manual(df):
     """
     Regressão linear múltipla usando a equação normal:
-    theta = (X^T X)^-1 X^T y
+    beta = (X^T X)^-1 X^T y
     """
     X = df[["tamanho", "numero"]].values
     y = df["preco"].values.reshape(-1, 1)
@@ -76,17 +76,18 @@ def regressao_manual(df):
     # adiciona coluna de 1 para o intercepto
     X_b = np.c_[np.ones((X.shape[0], 1)), X]
 
-    theta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
-    return theta
+    beta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
+    return beta
 
 
-def prever_manual(theta, tamanho, numero_quartos):
-    x_novo = np.array([[1, tamanho, numero_quartos]])
-    previsao = x_novo @ theta
-    return float(previsao[0][0])
+def prever_manual(beta, tamanho, numero_quartos):
+    x_input = np.array([[1, tamanho, numero_quartos]])
+    preco_previsto = prever_matricial(beta, x_input)
+
+    return preco_previsto[0][0]
 
 
-def gerarMatrizes(df):
+def gerar_matrizes(df):
     matriz = df[["tamanho", "numero"]].to_numpy()
     matriz_uns = np.ones((matriz.shape[0], 1))
     matriz_x = np.hstack((matriz_uns, matriz))
@@ -94,6 +95,16 @@ def gerarMatrizes(df):
     variaveis_dependentes = df["preco"].to_numpy()
 
     return matriz_x, variaveis_dependentes
+
+
+def prever_matricial(beta, X_novo):
+    """
+    Calcula y_hat = X * beta
+    X_novo deve ser um array numpy (n_amostras, n_features + 1)
+    """
+    # A operação @ realiza a multiplicação de matrizes (X * beta)
+    previsao = X_novo @ beta
+    return previsao
 
 
 def correlacaoSimples(x, y):
@@ -113,7 +124,7 @@ def correlacaoSimples(x, y):
     return round(r, 5)
 
 
-def regressaoSimples(x, y):
+def regressao_simples(x, y):
     n = len(x)
 
     if len(x) != len(y):
@@ -134,32 +145,25 @@ def desenharGraficoSimples(x, y, titulo):
     plt.scatter(x, y)
     plt.grid(True)
     valor_correlacao = correlacaoSimples(x, y)
-    b_0, b_1 = regressaoSimples(x, y)
+    b_0, b_1 = regressao_simples(x, y)
     linha_regressao = b_0 + b_1 * x
     plt.plot(x, linha_regressao, color='red')
     plt.title(f'{titulo} - Correlação: {valor_correlacao}. Regressão: {b_0}, {b_1}')
 
 
-def desenharParteD(df):
+def desenhar_parte_d(df):
     tamanho = df["tamanho"]
     quartos = df["numero"]
     preco = df["preco"]
-
-    print("\n")
+    
     desenharGraficoSimples(tamanho, preco, "Gráfico Tamanho x Preço")
-    print("\n")    
     desenharGraficoSimples(quartos, preco, "Gráfico Quartos x Preço")
-    print("\n")  
 
 
-def desenharGrafico3d(df):
-    #modelo = regressao_sklearn(df)
-    theta = regressao_manual(df)
+def desenhar_grafico_3d(df):
+    beta = regressao_manual(df)
     correlacao_tamanho_preco = correlacaoSimples(df["tamanho"], df["preco"])
     correlacao_quartos_preco = correlacaoSimples(df["numero"], df["preco"])
-
-    theta0 = theta [0][0] #modelo.intercept_
-    theta1, theta2 = theta[1][0], theta[2][0] #modelo.coef_
 
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
@@ -169,13 +173,15 @@ def desenharGrafico3d(df):
     x_surf = np.linspace(df["tamanho"].min(), df["tamanho"].max(), 20)
     y_surf = np.linspace(df["numero"].min(), df["numero"].max(), 20)
     x_surf, y_surf = np.meshgrid(x_surf, y_surf)
-    z_surf = theta0 + theta1 * x_surf + theta2 * y_surf
+    
+    
+    z_surf = prever_matricial(beta, np.c_[np.ones(x_surf.ravel().shape), x_surf.ravel(), y_surf.ravel()])
 
     ax.plot_surface(
         x_surf, y_surf, z_surf, color="red", alpha=0.3, label="Plano de Regressão"
     )
 
-    ax.set_xlabel("Tamanho (pés²)")
+    ax.set_xlabel("Tamanho")
     ax.set_ylabel("Número de quartos")
     ax.set_zlabel("Preço")
     ax.set_title("Regressão Linear Múltipla - Preço de Casas")
@@ -204,20 +210,20 @@ def comparar_resultados(df):
     print("REGRESSÃO LINEAR MÚLTIPLA - IMPLEMENTAÇÃO MANUAL")
     print("=" * 60)
 
-    theta = regressao_manual(df)
+    beta = regressao_manual(df)
 
-    print(f"Intercepto (theta0): {theta[0][0]}")
-    print(f"Coeficiente tamanho (theta1): {theta[1][0]}")
-    print(f"Coeficiente número de quartos (theta2): {theta[2][0]}")
+    print(f"Intercepto (beta0): {beta[0][0]}")
+    print(f"Coeficiente tamanho (beta1): {beta[1][0]}")
+    print(f"Coeficiente número de quartos (beta2): {beta[2][0]}")
 
-    preco_1650_3_manual = prever_manual(theta, 1650, 3)
+    preco_1650_3_manual = prever_manual(beta, 1650, 3)
     print(
         f"\nPreço previsto para casa de 1650 pés² e 3 quartos (manual): {preco_1650_3_manual:.0f}"
     )
 
     print("\nVariação da quantidade de quartos:")
     for quartos in range(1, 6):
-        preco = prever_manual(theta, 1650, quartos)
+        preco = prever_manual(beta, 1650, quartos)
         print(f"1650 pés² e {quartos} quartos -> preço previsto: {preco:.2f}")
 
     print("\n" + "=" * 60)
@@ -240,11 +246,11 @@ def comparar_resultados(df):
     print(f"Sklearn  : {preco_1650_3_sklearn:.6f}")
     print(f"Diferença: {abs(preco_1650_3_manual - preco_1650_3_sklearn):.10f}")
 
-    return theta, modelo
+    return beta, modelo
 
 
-def explicar_resultado(theta):
-    coef_quartos = theta[2][0]
+def explicar_resultado(beta):
+    coef_quartos = beta[2][0]
 
     print("\n" + "=" * 60)
     print("EXPLICAÇÃO DO ITEM (h)")
@@ -274,8 +280,8 @@ def explicar_resultado(theta):
 
     print("\nMotivo:")
     print("O modelo calcula o preço usando algo do tipo:")
-    print("preco = theta0 + theta1 * tamanho + theta2 * numero")
-    print("Então, ao mudar apenas 'numero', o preço varia de acordo com theta2.")
+    print("preco = beta0 + beta1 * tamanho + beta2 * numero")
+    print("Então, ao mudar apenas 'numero', o preço varia de acordo com beta2.")
 
 
 def main():
@@ -288,10 +294,10 @@ def main():
         return
 
     analise_estatistica(df)
-    desenharParteD(df)
-    desenharGrafico3d(df)
-    theta, modelo = comparar_resultados(df)
-    explicar_resultado(theta)
+    desenhar_parte_d(df)
+    desenhar_grafico_3d(df)
+    beta, modelo = comparar_resultados(df)
+    explicar_resultado(beta)
 
 
 if __name__ == "__main__":
